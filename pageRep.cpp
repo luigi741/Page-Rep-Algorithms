@@ -58,8 +58,11 @@ void FIFO(int arr[], int arrLength)
                 // Check for FIFO rule
                 for (int x = 0; x < 3; x++) {
                     for (int y = i; y >= 0; y--) {
-                        if (table[y][x] == frameArray[x]) {
+                        if (table[y][x] == frameArray[x] && i == 5) {
                             counter[x]++;
+                            cout << "table[" << y << "][" << x << "]";
+                            cout << "\ti: " << i << "\tj: " << j;
+                            cout << "\tx: " << x << "\tx: " << x << endl;
                         }
                     }
                 }
@@ -70,11 +73,10 @@ void FIFO(int arr[], int arrLength)
             //     frameArray[j] = arr[i];
             // }
             // table[i][j] = frameArray[j];
-
-            if (i == 5) {
-                cout << "Array: ";
-                cout << counter[0] << " " << counter[1] << " " << counter[2] << "\n\n";
-            }
+        }
+        if (i == 5) {
+            cout << "\nCounter Array: ";
+            cout << counter[0] << " " << counter[1] << " " << counter[2] << "\n\n";
         }
         // marker++;
         // if (marker >= 3) {
