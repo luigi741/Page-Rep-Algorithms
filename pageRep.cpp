@@ -17,6 +17,7 @@ int main()
     deque<int> pageRef;
 
     // First, let's get integers for the page references
+    cout << endl;
     for (int i = 0; i < 5; i++) {
         cout << "Page " << i + 1 << ": ";
         cin  >> tempVar;
@@ -45,6 +46,9 @@ void tablePrint(int tableArr[10][3])
 
 void FIFO(deque<int> pageQueue, int arrLength)
 {
+    int pageHit = 0;
+    int pageFault = 0;
+
     // Initialize table, set values to 0
     int table[10][3];
     for (int i = 0; i < 10; i++) {
@@ -76,15 +80,6 @@ void FIFO(deque<int> pageQueue, int arrLength)
         }
     }
 
-    tablePrint(table);
-
-    // Print counter array
-    cout << "\nCounter array: ";
-    for (int i = 0; i < 3; i++) {
-        cout << counter[i] << " ";
-    }
-    cout << endl;
-
     // Find largest element/index in counter[] which will tell us which page to
     // replace
     int maxValue = counter[0];
@@ -96,20 +91,10 @@ void FIFO(deque<int> pageQueue, int arrLength)
         }
     }
 
-    cout << "Largest element: " << maxValue << endl;
-    cout << "Largest index: " << maxIndex << endl;
-
     // Calculate which page to replace next based on info from above
     frameArray[maxIndex] = pageQueue.front();
     pageQueue.pop_front();
     popCount++;
-
-    cout << "Frame array: ";
-    for (int i = 0; i < 3; i++) {
-        cout << frameArray[i] << " ";
-    }
-
-    cout << "\nRow index: " << popCount << endl;
 
     for (int i = 0; i < 3; i++) {
         table[popCount-1][i] = frameArray[i];
@@ -125,8 +110,6 @@ void FIFO(deque<int> pageQueue, int arrLength)
     }
     pageQueue.pop_front();
     popCount++;
-    cout << "Frame array: ";
-    for (int i = 0; i < 3; i++) {
-        cout << frameArray[i] << " ";
-    }
+
+    tablePrint(table);
 }
