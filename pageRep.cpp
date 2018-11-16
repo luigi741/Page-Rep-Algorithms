@@ -9,6 +9,7 @@
 using namespace std;
 
 void FIFO(deque<int> pageQueue, int arrLength);
+void tablePrint(int tableArr[10][3]);
 
 int main()
 {
@@ -30,6 +31,16 @@ int main()
     cout << endl << endl;
     FIFO(pageRef, pageRef.size());
     return 0;
+}
+
+void tablePrint(int tableArr[10][3])
+{
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 3; j++) {
+            cout << tableArr[i][j] << " ";
+        }
+        cout << endl;
+    }
 }
 
 void FIFO(deque<int> pageQueue, int arrLength)
@@ -65,13 +76,7 @@ void FIFO(deque<int> pageQueue, int arrLength)
         }
     }
 
-    // Print table
-    for (int i = 0; i < 10; i++) {
-        for (int j = 0; j < 3; j++) {
-            cout << table[i][j] << " ";
-        }
-        cout << endl;
-    }
+    tablePrint(table);
 
     // Print counter array
     cout << "\nCounter array: ";
@@ -107,13 +112,15 @@ void FIFO(deque<int> pageQueue, int arrLength)
     cout << "\nRow index: " << popCount << endl;
 
     for (int i = 0; i < 3; i++) {
-        table[popCount][i] = frameArray[i];
+        table[popCount-1][i] = frameArray[i];
     }
 
     // Dealing with PAGE HITS
     for (int i = 0; i < 3; i++) {
         if (pageQueue.front() == frameArray[i]) {
-            table[popCount][i] == table[popCount-1][i];
+            for (int j = 0; j < 3; j++) {
+                table[popCount][i] == table[popCount-1][i];
+            }
         }
     }
     pageQueue.pop_front();
