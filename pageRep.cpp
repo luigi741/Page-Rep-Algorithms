@@ -8,8 +8,9 @@
 #include <deque>
 using namespace std;
 
-void FIFO(deque<int> pageQueue, int arrLength);
 void tablePrint(int tableArr[10][3]);
+void FIFO(deque<int> pageQueue, int arrLength);
+void OPT(deque<int> pageQueue, int arrLength);
 
 int main()
 {
@@ -47,6 +48,10 @@ void tablePrint(int tableArr[10][3])
 
 void FIFO(deque<int> pageQueue, int arrLength)
 {
+    // Initialize variables and arrays we will need
+    int frameArray[3] = {0, 0, 0};
+    int counter[3] = {0, 0, 0};
+    int popCount = 0;
     int pageHit = 0;
     int pageFault = 0;
 
@@ -57,10 +62,6 @@ void FIFO(deque<int> pageQueue, int arrLength)
             table[i][j] = 0;
         }
     }
-
-    int frameArray[3] = {0, 0, 0};
-    int counter[3] = {0, 0, 0};
-    int popCount = 0;
 
     // Adding the first pages (which are page faults)
     for (int i = 0; i < 3; i++) {
@@ -130,10 +131,12 @@ void FIFO(deque<int> pageQueue, int arrLength)
                 }
             }
         }
-        // pageQueue.pop_front();
-        // popCount++;
     }
-
     cout << "After while loop" << endl;
     tablePrint(table);
+}
+
+void OPT(deque<int> pageQueue, int arrLength)
+{
+
 }
