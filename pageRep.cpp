@@ -18,7 +18,7 @@ int main()
 
     // First, let's get integers for the page references
     cout << endl;
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 7; i++) {
         cout << "Page " << i + 1 << ": ";
         cin  >> tempVar;
         pageRef.push_back(tempVar);
@@ -42,6 +42,7 @@ void tablePrint(int tableArr[10][3])
         }
         cout << endl;
     }
+    cout << endl;
 }
 
 void FIFO(deque<int> pageQueue, int arrLength)
@@ -71,45 +72,68 @@ void FIFO(deque<int> pageQueue, int arrLength)
         }
     }
 
+    cout << "Before while loop" << endl;
+    tablePrint(table);
+
     // Adding subsequent pages
-    for (int i = 0; i < popCount; i++) {
-        for (int j = 0; j < 3; j++) {
-            if (table[j][i] == frameArray[i]) {
-                counter[i]++;
-            }
-        }
-    }
+    int loopCount = 0;
+    while (!pageQueue.empty())
+    {
+        loopCount++;
 
-    // Find largest element/index in counter[] which will tell us which page to
-    // replace
-    int maxValue = counter[0];
-    int maxIndex = 0;
-    for (int i = 0; i < 3; i++) {
-        if (maxValue < counter[i]) {
-            maxValue = counter[i];
-            maxIndex = i;
-        }
-    }
-
-    // Calculate which page to replace next based on info from above
-    frameArray[maxIndex] = pageQueue.front();
-    pageQueue.pop_front();
-    popCount++;
-
-    for (int i = 0; i < 3; i++) {
-        table[popCount-1][i] = frameArray[i];
-    }
-
-    // Dealing with PAGE HITS
-    for (int i = 0; i < 3; i++) {
-        if (pageQueue.front() == frameArray[i]) {
+        // This loop increments counter[] array to see which page has been in
+        // frames the longest
+        for (int i = 0; i < popCount; i++) {
             for (int j = 0; j < 3; j++) {
-                table[popCount][i] == table[popCount-1][i];
+                if (table[i][j] == frameArray[i]) {
+                    counter[i]++;
+                }
             }
         }
-    }
-    pageQueue.pop_front();
-    popCount++;
 
+        cout << "Counter Array: ";
+        for (int i = 0; i < 3; i++) {
+            cout << counter[i] << " ";
+        }
+        cout << endl;
+
+        // Find largest element/index in counter[] which will tell us which page to
+        // replace
+        int maxValue = counter[0];
+        int maxIndex = 0;
+        for (int i = 0; i < 3; i++) {
+            if (maxValue < counter[i]) {
+                maxValue = counter[i];
+                maxIndex = i;
+            }
+        }
+
+        // Calculate which page to replace next based on info from above
+        frameArray[maxIndex] = pageQueue.front();
+        pageQueue.pop_front();
+        popCount++;
+
+        cout << "Inserting in row: " << popCount-1 << endl;
+        for (int i = 0; i < 3; i++) {
+            table[popCount-1][i] = frameArray[i];
+        }
+
+        cout << "Pop count: " << popCount << endl;
+        cout << "Inside while loop" << endl;
+        tablePrint(table);
+
+        // Dealing with PAGE HITS
+        for (int i = 0; i < 3; i++) {
+            if (pageQueue.front() == frameArray[i]) {
+                for (int j = 0; j < 3; j++) {
+                    table[popCount-1][i] == table[popCount-2][i];
+                }
+            }
+        }
+        // pageQueue.pop_front();
+        // popCount++;
+    }
+
+    cout << "After while loop" << endl;
     tablePrint(table);
 }
