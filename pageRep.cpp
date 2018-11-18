@@ -192,12 +192,29 @@ void OPT(deque<int> pageQueue, int arrLength)
     }
     cout << endl;
 
-    vector<int> indexVector(indexOPT, indexOPT + sizeof(indexOPT) / sizeof(indexOPT[0]));
-    sort(indexVector.begin(), indexVector.end());
+    // vector<int> indexVector(indexOPT, indexOPT + sizeof(indexOPT) / sizeof(indexOPT[0]));
+    // sort(indexVector.begin(), indexVector.end());
 
-    for (int i = 0; i < indexVector.size(); i++) {
-        cout << indexVector.at(i) << ' ';
+    int frameLength = 0;
+    int frameCounter = 0;
+    frameLength = sizeof(frameArray)/sizeof(*frameArray);
+
+    // Dealing with PAGE HITS
+    for (int i = 0; i < frameLength; i++) {
+        if (frameArray[i] == pageQueue.front()) {
+            frameCounter++;
+        }
     }
+
+    // Only insert if the page ref. is not already in the frames
+    if (frameCounter == 0) {
+        frameArray[markIndex] = pageQueue.front();
+        pageQueue.pop_front();
+    }
+    else if (frameCounter > 0) {
+        pageQueue.pop_front();
+    }
+
     // while (!pageQueue.empty())
     // {
     //     for (int i = 0; i < 3; i++) {
