@@ -10,9 +10,14 @@
 #include <algorithm>
 using namespace std;
 
+// Function prototypes
 void tablePrint(int tableArr[10][3]);
 void FIFO(deque<int> pageQueue, int arrLength);
 void OPT(deque<int> pageQueue, int arrLength);
+void LRU(deque<int> pageQueue, int arrLength, int frameSize);
+
+// Constants
+const int frameSize = 3;
 
 int main()
 {
@@ -34,7 +39,8 @@ int main()
     }
     cout << endl << endl;
     // FIFO(pageRef, pageRef.size());
-    OPT(pageRef, pageRef.size());
+    // OPT(pageRef, pageRef.size());
+    LRU(pageRef, pageRef.size(), frameSize);
     return 0;
 }
 
@@ -154,77 +160,92 @@ void OPT(deque<int> pageQueue, int arrLength)
     int loopCount = 0;
     int indexOPT[3] = {-1, -1, -1};
 
-    cout << "Iterating from " << popCount-1 << " to " << arrLength << endl << endl;;
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < pageQueue.size(); j++) {
-            cout << "fA: " << frameArray[i] << "\tpQ: " << pageQueue[j] << endl;
-            if (frameArray[i] == pageQueue[j]) {
-                counter[i]++;
+    while (!pageQueue.empty())
+    {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < pageQueue.size(); j++) {
+                if (frameArray[i] == pageQueue[j]) {
+                    counter[i]++;
 
-                // Mark the last index of the page in the reference string that
-                // matches the current page frames
-                indexOPT[i] = j;
+                    // Mark the last index of the page in the reference string that
+                    // matches the current page frames
+                    indexOPT[i] = j;
+                }
             }
         }
-    }
 
-    cout << "\nCounter: ";
-    for (int i = 0; i < 3; i++) {
-        cout << counter[i] << " ";
-    }
-    cout << endl;
+        int markIndex = -1;
+        for (int i = 0; i < 3; i++) {
+            // Marking index if there are two frames that don't have a match in the
+            // page reference
+            if (counter[i] == 0) {
+                markIndex = i;
+                break;
+            }
+        }
 
-    int markIndex = -1;
-    for (int i = 0; i < 3; i++) {
-        // Marking index if there are two frames that don't have a match in the
-        // page reference
-        if (counter[i] == 0) {
-            markIndex = i;
-            cout << "counter[] has a 0 in it" << endl;
-            break;
+        // vector<int> indexVector(indexOPT, indexOPT + sizeof(indexOPT) / sizeof(indexOPT[0]));
+        // sort(indexVector.begin(), indexVector.end());
+
+        int frameLength = 0;
+        int frameCounter = 0;
+        frameLength = sizeof(frameArray)/sizeof(*frameArray);
+
+        // Dealing with PAGE HITS
+        for (int i = 0; i < frameLength; i++) {
+            if (frameArray[i] == pageQueue.front()) {
+                frameCounter++;
+            }
+        }
+
+        // Only insert if the page ref. is not already in the frames
+        if (frameCounter == 0) {
+            frameArray[markIndex] = pageQueue.front();
+            pageQueue.pop_front();
+        }
+        else if (frameCounter > 0) {
+            pageQueue.pop_front();
+        }
+        popCount++;
+
+        // Update the page table
+        for (int i = 0; i < frameLength; i++) {
+            table[popCount-1][i] = frameArray[i];
         }
     }
 
-    cout << "Index: " << markIndex << endl;
+    tablePrint(table);
+}
 
-    for (int i = 0; i < sizeof(indexOPT)/sizeof(*indexOPT); i++) {
-        cout << indexOPT[i] << " ";
-    }
-    cout << endl;
+void LRU(deque<int> pageQueue, int arrLength, int frameSize)
+{
+    // Initialize variables and arrays we will need
+    int frameArray[frameSize] = {0, 0, 0};
+    int counter[frameSize] = {0, 0, 0};
+    int popCount = 0;
+    int pageHit = 0;
+    int pageFault = 0;
 
-    // vector<int> indexVector(indexOPT, indexOPT + sizeof(indexOPT) / sizeof(indexOPT[0]));
-    // sort(indexVector.begin(), indexVector.end());
-
-    int frameLength = 0;
-    int frameCounter = 0;
-    frameLength = sizeof(frameArray)/sizeof(*frameArray);
-
-    // Dealing with PAGE HITS
-    for (int i = 0; i < frameLength; i++) {
-        if (frameArray[i] == pageQueue.front()) {
-            frameCounter++;
+    // Initialize table, set values to 0
+    int table[10][3];
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 3; j++) {
+            table[i][j] = 0;
         }
     }
 
-    // Only insert if the page ref. is not already in the frames
-    if (frameCounter == 0) {
-        frameArray[markIndex] = pageQueue.front();
+    // Adding the first pages (which are page faults)
+    for (int i = 0; i < 3; i++) {
+        frameArray[i] = pageQueue.front();
         pageQueue.pop_front();
-    }
-    else if (frameCounter > 0) {
-        pageQueue.pop_front();
+        popCount++;
+        for (int j = 0; j < 3; j++) {
+            table[i][j] = frameArray[j];
+        }
     }
 
-    // while (!pageQueue.empty())
-    // {
-    //     for (int i = 0; i < 3; i++) {
-    //         for (int j = popCount-1; j < pageQueue.size(); j++) {
-    //             if (frameArray[i] == pageQueue[j]) {
-    //                 counter[i]++;
-    //             }
-    //         }
-    //     }
-    //     pageQueue.pop_front();
-    //     popCount++;
-    // }
+    while (!pageQueue.empty())
+    {
+
+    }
 }
