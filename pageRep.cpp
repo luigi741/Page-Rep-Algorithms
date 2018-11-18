@@ -293,18 +293,39 @@ void LFU(deque<int> pageQueue, int arrLength, int frameSize)
         tempQueue.at(i) = pageQueue.at(i);
     }
 
+    cout << "\ntempQueue: ";
+    for (int i = 0; i < tempQueue.size(); i++) {
+        cout << tempQueue.at(i) << " ";
+    }
+    cout << endl;
+
     // Scan the reference string, get the number of unique entries
     set<int> refString(tempQueue.begin(), tempQueue.end());
     vector<int> unique(refString.begin(), refString.end());
 
     cout << "\nUnique entries: " << refString.size() << endl;
+    cout << "Union set: ";
     for (int i = 0; i < unique.size(); i++) {
         cout << unique[i] << " ";
     }
 
     // Get frequency of each unique entry
     vector<int> pageFreq (unique.size());
-    for (int i = 0; i < unique.size(); i++) {
-
+    for (int i = 0; i < pageFreq.size(); i++) {
+        pageFreq[i] = 0;
     }
+
+    for (int i = 0; i < unique.size(); i++) {
+        for (int j = 0; j < tempQueue.size(); j++) {
+            if (unique[i] == tempQueue[j]) {
+                pageFreq[i]++;
+            }
+        }
+    }
+
+    cout << "\nUnion set frequency: ";
+    for (int i = 0; i < pageFreq.size(); i++) {
+        cout << pageFreq.at(i) << " ";
+    }
+    cout << endl;
 }
