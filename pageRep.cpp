@@ -184,15 +184,9 @@ void OPT(deque<int> pageQueue, int arrLength)
             }
         }
 
-        // vector<int> indexVector(indexOPT, indexOPT + sizeof(indexOPT) / sizeof(indexOPT[0]));
-        // sort(indexVector.begin(), indexVector.end());
-
-        int frameLength = 0;
-        int frameCounter = 0;
-        frameLength = sizeof(frameArray)/sizeof(*frameArray);
-
         // Dealing with PAGE HITS
-        for (int i = 0; i < frameLength; i++) {
+        int frameCounter = 0;
+        for (int i = 0; i < frameSize; i++) {
             if (frameArray[i] == pageQueue.front()) {
                 frameCounter++;
             }
@@ -209,7 +203,7 @@ void OPT(deque<int> pageQueue, int arrLength)
         popCount++;
 
         // Update the page table
-        for (int i = 0; i < frameLength; i++) {
+        for (int i = 0; i < frameSize; i++) {
             table[popCount-1][i] = frameArray[i];
         }
     }
@@ -219,6 +213,12 @@ void OPT(deque<int> pageQueue, int arrLength)
 
 void LRU(deque<int> pageQueue, int arrLength, int frameSize)
 {
+    // Store a local copy of the page reference string
+    deque<int> tempQueue (arrLength);
+    for (int i = 0; i < pageQueue.size(); i++) {
+        tempQueue.at(i) = pageQueue.at(i);
+    }
+
     // Initialize variables and arrays we will need
     int frameArray[frameSize] = {0, 0, 0};
     int counter[frameSize] = {0, 0, 0};
@@ -246,6 +246,38 @@ void LRU(deque<int> pageQueue, int arrLength, int frameSize)
 
     while (!pageQueue.empty())
     {
+        // Remove LRU element in the frame array
+        int repVar = 0;
+        int repIndex = -1;
+        repVar = tempQueue.at(popCount-frameSize);
+        for (int i = 0; i < frameSize; i++) {
+            if (frameArray[i] == repVar) {
+                repIndex = i;
+            }
+        }
 
+        // Dealing with PAGE HITS
+        int frameCounter = 0;
+        for (int i = 0; i < frameSize; i++) {
+            if (frameArray[i] == pageQueue.front()) {
+                frameCounter++;
+            }
+        }
+
+        if (frameCounter == 0) {
+            frameArray[repIndex] = pageQueue.front();
+            pageQueue.pop_front();
+        }
+        else if (frameCounter > 0) {
+            pageQueue.pop_front();
+        }
+        popCount++;
+
+        // Update the page table
+        for (int i = 0; i < frameSize; i++) {
+            table[popCount-1][i] = frameArray[i];
+        }
     }
+
+    tablePrint(table);
 }
