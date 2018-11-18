@@ -7,6 +7,7 @@
 #include <cmath>
 #include <deque>
 #include <vector>
+#include <set>
 #include <algorithm>
 using namespace std;
 
@@ -15,6 +16,7 @@ void tablePrint(int tableArr[10][3]);
 void FIFO(deque<int> pageQueue, int arrLength);
 void OPT(deque<int> pageQueue, int arrLength);
 void LRU(deque<int> pageQueue, int arrLength, int frameSize);
+void LFU(deque<int> pageQueue, int arrLength, int frameSize);
 
 // Constants
 const int frameSize = 3;
@@ -40,7 +42,8 @@ int main()
     cout << endl << endl;
     // FIFO(pageRef, pageRef.size());
     // OPT(pageRef, pageRef.size());
-    LRU(pageRef, pageRef.size(), frameSize);
+    // LRU(pageRef, pageRef.size(), frameSize);
+    LFU(pageRef, pageRef.size(), frameSize);
     return 0;
 }
 
@@ -280,4 +283,28 @@ void LRU(deque<int> pageQueue, int arrLength, int frameSize)
     }
 
     tablePrint(table);
+}
+
+void LFU(deque<int> pageQueue, int arrLength, int frameSize)
+{
+    // Store a local copy of the page reference string
+    deque<int> tempQueue (arrLength);
+    for (int i = 0; i < pageQueue.size(); i++) {
+        tempQueue.at(i) = pageQueue.at(i);
+    }
+
+    // Scan the reference string, get the number of unique entries
+    set<int> refString(tempQueue.begin(), tempQueue.end());
+    vector<int> unique(refString.begin(), refString.end());
+
+    cout << "\nUnique entries: " << refString.size() << endl;
+    for (int i = 0; i < unique.size(); i++) {
+        cout << unique[i] << " ";
+    }
+
+    // Get frequency of each unique entry
+    vector<int> pageFreq (unique.size());
+    for (int i = 0; i < unique.size(); i++) {
+
+    }
 }
