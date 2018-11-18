@@ -6,6 +6,8 @@
 #include <iostream>
 #include <cmath>
 #include <deque>
+#include <vector>
+#include <algorithm>
 using namespace std;
 
 void tablePrint(int tableArr[10][3]);
@@ -31,7 +33,8 @@ int main()
         cout << x << "|";
     }
     cout << endl << endl;
-    FIFO(pageRef, pageRef.size());
+    // FIFO(pageRef, pageRef.size());
+    OPT(pageRef, pageRef.size());
     return 0;
 }
 
@@ -73,9 +76,6 @@ void FIFO(deque<int> pageQueue, int arrLength)
         }
     }
 
-    cout << "Before while loop" << endl;
-    tablePrint(table);
-
     // Adding subsequent pages
     int loopCount = 0;
     while (!pageQueue.empty())
@@ -91,12 +91,6 @@ void FIFO(deque<int> pageQueue, int arrLength)
                 }
             }
         }
-
-        cout << "Counter Array: ";
-        for (int i = 0; i < 3; i++) {
-            cout << counter[i] << " ";
-        }
-        cout << endl;
 
         // Find largest element/index in counter[] which will tell us which page to
         // replace
@@ -114,14 +108,9 @@ void FIFO(deque<int> pageQueue, int arrLength)
         pageQueue.pop_front();
         popCount++;
 
-        cout << "Inserting in row: " << popCount-1 << endl;
         for (int i = 0; i < 3; i++) {
             table[popCount-1][i] = frameArray[i];
         }
-
-        cout << "Pop count: " << popCount << endl;
-        cout << "Inside while loop" << endl;
-        tablePrint(table);
 
         // Dealing with PAGE HITS
         for (int i = 0; i < 3; i++) {
@@ -132,11 +121,93 @@ void FIFO(deque<int> pageQueue, int arrLength)
             }
         }
     }
-    cout << "After while loop" << endl;
     tablePrint(table);
 }
 
 void OPT(deque<int> pageQueue, int arrLength)
 {
+    // Initialize variables and arrays we will need
+    int frameArray[3] = {0, 0, 0};
+    int counter[3] = {0, 0, 0};
+    int popCount = 0;
+    int pageHit = 0;
+    int pageFault = 0;
 
+    // Initialize table, set values to 0
+    int table[10][3];
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 3; j++) {
+            table[i][j] = 0;
+        }
+    }
+
+    // Adding the first pages (which are page faults)
+    for (int i = 0; i < 3; i++) {
+        frameArray[i] = pageQueue.front();
+        pageQueue.pop_front();
+        popCount++;
+        for (int j = 0; j < 3; j++) {
+            table[i][j] = frameArray[j];
+        }
+    }
+
+    int loopCount = 0;
+    int indexOPT[3] = {-1, -1, -1};
+
+    cout << "Iterating from " << popCount-1 << " to " << arrLength << endl << endl;;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < pageQueue.size(); j++) {
+            cout << "fA: " << frameArray[i] << "\tpQ: " << pageQueue[j] << endl;
+            if (frameArray[i] == pageQueue[j]) {
+                counter[i]++;
+
+                // Mark the last index of the page in the reference string that
+                // matches the current page frames
+                indexOPT[i] = j;
+            }
+        }
+    }
+
+    cout << "\nCounter: ";
+    for (int i = 0; i < 3; i++) {
+        cout << counter[i] << " ";
+    }
+    cout << endl;
+
+    int markIndex = -1;
+    for (int i = 0; i < 3; i++) {
+        // Marking index if there are two frames that don't have a match in the
+        // page reference
+        if (counter[i] == 0) {
+            markIndex = i;
+            cout << "counter[] has a 0 in it" << endl;
+            break;
+        }
+    }
+
+    cout << "Index: " << markIndex << endl;
+
+    for (int i = 0; i < sizeof(indexOPT)/sizeof(*indexOPT); i++) {
+        cout << indexOPT[i] << " ";
+    }
+    cout << endl;
+
+    vector<int> indexVector(indexOPT, indexOPT + sizeof(indexOPT) / sizeof(indexOPT[0]));
+    sort(indexVector.begin(), indexVector.end());
+
+    for (int i = 0; i < indexVector.size(); i++) {
+        cout << indexVector.at(i) << ' ';
+    }
+    // while (!pageQueue.empty())
+    // {
+    //     for (int i = 0; i < 3; i++) {
+    //         for (int j = popCount-1; j < pageQueue.size(); j++) {
+    //             if (frameArray[i] == pageQueue[j]) {
+    //                 counter[i]++;
+    //             }
+    //         }
+    //     }
+    //     pageQueue.pop_front();
+    //     popCount++;
+    // }
 }
