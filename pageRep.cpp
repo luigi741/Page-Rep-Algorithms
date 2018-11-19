@@ -27,7 +27,7 @@ int main()
 
     // Select which algorithm to use
     int selection = 0;
-    cout << "1. FIFO()\n" << "2. OPT()\n" << "3. LRU()\n" << "4. LFU()\n\n";
+    cout << "\n1. FIFO()\n" << "2. OPT()\n" << "3. LRU()\n" << "4. LFU()\n\n";
     cout << "Select algorithm: ";
     cin  >> selection;
 
@@ -45,10 +45,6 @@ int main()
         cout << x << "|";
     }
     cout << endl << endl;
-    // FIFO(pageRef, pageRef.size());
-    // OPT(pageRef, pageRef.size());
-    // LRU(pageRef, pageRef.size(), frameSize);
-    // LFU(pageRef, pageRef.size(), frameSize);
 
     switch(selection) {
         case 1: FIFO(pageRef, pageRef.size());
@@ -61,7 +57,6 @@ int main()
                 break;
         default: cout << "Invalid selection made." << endl;
     }
-
     return 0;
 }
 
@@ -79,8 +74,10 @@ void tablePrint(int tableArr[10][3])
 void FIFO(deque<int> pageQueue, int arrLength)
 {
     // Initialize variables and arrays we will need
-    int frameArray[3] = {0, 0, 0};
-    int counter[3] = {0, 0, 0};
+    // int frameArray[3] = {0, 0, 0};
+    // int counter[3] = {0, 0, 0};
+    vector<int> frameArray (3);
+    vector<int> counter (3);
     int popCount = 0;
     int pageHit = 0;
     int pageFault = 0;
@@ -101,6 +98,7 @@ void FIFO(deque<int> pageQueue, int arrLength)
         for (int j = 0; j < 3; j++) {
             table[i][j] = frameArray[j];
         }
+        pageFault++;
     }
 
     // Adding subsequent pages
@@ -115,6 +113,16 @@ void FIFO(deque<int> pageQueue, int arrLength)
             for (int j = 0; j < 3; j++) {
                 if (table[i][j] == frameArray[i]) {
                     counter[i]++;
+                }
+            }
+        }
+
+        // Dealing with PAGE HITS
+        for (int i = 0; i < 3; i++) {
+            if (frameArray[i] == pageQueue.front()) {
+                pageHit++;
+                for (int j = 0; j < 3; j++) {
+                    table[popCount-1][i] == table[popCount-2][i];
                 }
             }
         }
@@ -134,26 +142,18 @@ void FIFO(deque<int> pageQueue, int arrLength)
         frameArray[maxIndex] = pageQueue.front();
         pageQueue.pop_front();
         popCount++;
+        pageFault++;
 
         for (int i = 0; i < 3; i++) {
             table[popCount-1][i] = frameArray[i];
         }
-
-        // Dealing with PAGE HITS
-        for (int i = 0; i < 3; i++) {
-            if (pageQueue.front() == frameArray[i]) {
-                for (int j = 0; j < 3; j++) {
-                    table[popCount-1][i] == table[popCount-2][i];
-                }
-            }
-        }
     }
+    tablePrint(table);
     double percent = 0.0;
     percent = (double) pageHit / (double)(pageHit + pageFault);
     cout << "Page Hits: " << pageHit << endl;
     cout << "Page Faults: " << pageFault << endl;
     cout << "Hit Percentage: " << percent << endl;
-    tablePrint(table);
 }
 
 void OPT(deque<int> pageQueue, int arrLength)
@@ -315,12 +315,12 @@ void LRU(deque<int> pageQueue, int arrLength, int frameSize)
             table[popCount-1][i] = frameArray[i];
         }
     }
+    tablePrint(table);
     double percent = 0.0;
     percent = (double) pageHit / (double)(pageHit + pageFault);
     cout << "Page Hits: " << pageHit << endl;
     cout << "Page Faults: " << pageFault << endl;
     cout << "Hit Percentage: " << percent << endl;
-    tablePrint(table);
 }
 
 void LFU(deque<int> pageQueue, int arrLength, int frameSize)
@@ -390,27 +390,6 @@ void LFU(deque<int> pageQueue, int arrLength, int frameSize)
         pageFault++;
     }
 
-    //======================================================================
-    // Print statements for debugging and problem solving
-    cout << "unique[]: ";
-    for (int i = 0; i < unique.size(); i++) {
-        cout << unique.at(i) << " ";
-    }
-    cout << endl;
-
-    cout << "pageFreqTotal[]: ";
-    for (int i = 0; i < pageFreqTotal.size(); i++) {
-        cout << pageFreqTotal.at(i) << " ";
-    }
-    cout << endl;
-
-    cout << "pageFreqFA[]: ";
-    for (int i = 0; i < pageFreqFA.size(); i++) {
-        cout << pageFreqFA.at(i) << " ";
-    }
-    cout << "\n\n";
-    //======================================================================
-
     // Repeat until pageQueue is empty
     int loopCount = 0;
     while (!pageQueue.empty())
@@ -471,9 +450,7 @@ void LFU(deque<int> pageQueue, int arrLength, int frameSize)
         }
         cout << "\n\n";
     }
-
     tablePrint(table);
-
     double percent = 0.0;
     percent = (double) pageHit / (double)(pageHit + pageFault);
     cout << "Page Hits: " << pageHit << endl;
