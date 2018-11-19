@@ -1,4 +1,4 @@
-pageFreqFA//==============================================================================
+//==============================================================================
 // pageRep.cpp - COP 4600 final project which simulates the page replacement
 // algorithms and also counts page hits and faults
 // By: Luis Castro
@@ -297,7 +297,6 @@ void LRU(deque<int> pageQueue, int arrLength, int frameSize)
 
 void LFU(deque<int> pageQueue, int arrLength, int frameSize)
 {
-    cout << "Array length: " << arrLength << "\n\n";
     // Initialize table, set values to 0
     int table[10][3];
     for (int i = 0; i < 10; i++) {
@@ -322,17 +321,41 @@ void LFU(deque<int> pageQueue, int arrLength, int frameSize)
 
     // Scan the reference string, get the number of unique entries
     set<int> refString(tempQueue.begin(), tempQueue.end());
+
+    // This vector holds the unique values
     vector<int> unique(refString.begin(), refString.end());
-    vector<int> pageFreqTotal(unique.size());
+
+    // This vector counts the page frequency of ALL the unique entries
+    int size = unique.size();
+    vector<int> pageFreqTotal (size);
     for (int i = 0; i < pageFreqTotal.size(); i++) {
         pageFreqTotal[i] = 0;
     }
 
-    // Create vector equal to the number of unique page entries
-    // This will be used to store/count frequencies
+    // This vector holds the frequency of ONLY the pages in the FRAME ARRAY
     vector<int> pageFreqFA (frameSize);
     for (int i = 0; i < pageFreqFA.size(); i++) {
         pageFreqFA.at(i) = 0;
+    }
+
+    // Adding the first pages (which are page faults)
+    for (int i = 0; i < frameSize; i++) {
+        frameArray[i] = pageQueue.front();
+
+        // Increment values of the page references in the unique[] array
+        for (int k = 0; k < unique.size(); k++) {
+            if (frameArray[i] == unique[k]) {
+                pageFreqTotal[k]++;
+            }
+        }
+
+        pageQueue.pop_front();
+        popCount++;
+
+        // Update table
+        for (int j = 0; j < 3; j++) {
+            table[i][j] = frameArray[j];
+        }
     }
 
     //======================================================================
@@ -343,46 +366,78 @@ void LFU(deque<int> pageQueue, int arrLength, int frameSize)
     }
     cout << endl;
 
-    cout << "pageFreq[]: "; //-------------------------------
-    for (int i = 0; i < pageFreq.size(); i++) {
-        cout << pageFreq.at(i) << " ";
+    cout << "pageFreqTotal[]: ";
+    for (int i = 0; i < pageFreqTotal.size(); i++) {
+        cout << pageFreqTotal.at(i) << " ";
     }
-    cout << endl; //-----------------------------------------
+    cout << endl;
 
     cout << "pageFreqFA[]: ";
     for (int i = 0; i < pageFreqFA.size(); i++) {
         cout << pageFreqFA.at(i) << " ";
     }
-    cout << endl;
+    cout << "\n\n";
     //======================================================================
 
-    // Adding the first pages (which are page faults)
-    for (int i = 0; i < frameSize; i++) {
-        frameArray[i] = pageQueue.front();
-
-        for (int k = 0; k < unique.size(); k++) {
-            if (frameArray[i] == unique[k]) {
-                pageFreq[k]++;
+    // Repeat until pageQueue is empty
+    int loopCount = 0;
+    while (!pageQueue.empty())
+    {
+        // Handling PAGE HITS/FAULTS
+        int hitCount = 0;
+        for (int i = 0; i < frameSize; i++) {
+            if (frameArray[i] == pageQueue.front()) {
+                hitCount++;
             }
         }
 
+        // Page HIT
+        int hitIndex = -1;
+        if (hitCount > 0) {
+            for (int i = 0; i < unique.size(); i++) {
+                if (pageQueue.front() == unique.at(i)) {
+                    hitIndex = i;
+                }
+            }
+
+            pageFreqTotal[hitIndex]++;
+        }
+        // Page FAULT
+        else if (hitCount == 0) {
+            // Pull frequency counts for each of the pages in the frame buffer
+            for (int i = 0; i < frameSize; i++) {
+                for (int j = 0; j < unique.size(); j++) {
+                    if (frameArray[i] == unique[j]) {
+                        pageFreqFA[i] = unique[j];
+                    }
+                }
+            }
+            // Sort and then decide which page will be replaced
+            int freqIndex = -1;
+            int maxVal = *min_element(pageFreqFA.begin(), pageFreqFA.end());
+
+            for (int i = 0; i < frameSize; i++) {
+                if (maxVal == frameArray[i]) {
+                    freqIndex = i;
+                    break;
+                }
+            }
+            frameArray[maxVal] = pageQueue.front();
+        }
         pageQueue.pop_front();
         popCount++;
 
-        // Loop through unique[] and increment the reference that it's equal to
-        // for (int k = 0; k < unique.size(); k++) {
-        //     if (frameArray[i] == unique[k]) {
-        //         pageFreqFA
-        //     }
-        // }
-
-        for (int j = 0; j < 3; j++) {
-            table[i][j] = frameArray[j];
+        // Update the page table
+        for (int i = 0; i < frameSize; i++) {
+            table[popCount-1][i] = frameArray[i];
         }
-    }
 
-    // Now we need to decide which element to insert, since we have the frequency
-    sort(pageFreq.begin(), pageFreq.end());
+        cout << "pageFreqFA[]: ";
+        for (int i = 0; i < pageFreqFA.size(); i++) {
+            cout << pageFreqFA.at(i) << " ";
+        }
+        cout << "\n\n";
+    }
 
     tablePrint(table);
 }
