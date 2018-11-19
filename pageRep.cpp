@@ -440,7 +440,7 @@ void LFU(deque<int> pageQueue, int arrLength, int frameSize)
             for (int i = 0; i < frameSize; i++) {
                 for (int j = 0; j < unique.size(); j++) {
                     if (frameArray[i] == unique[j]) {
-                        pageFreqFA[i] = unique[j];
+                        pageFreqFA[i] = pageFreqTotal[j];
                     }
                 }
             }
