@@ -4,7 +4,6 @@
 // By: Luis Castro
 //==============================================================================
 #include <iostream>
-#include <cmath>
 #include <deque>
 #include <vector>
 #include <set>
@@ -17,7 +16,6 @@ void FIFO(deque<int> pageQueue, int arrLength);
 void OPT(deque<int> pageQueue, int arrLength);
 void LRU(deque<int> pageQueue, int arrLength, int frameSize);
 void LFU(deque<int> pageQueue, int arrLength, int frameSize);
-void MFU(deque<int> pageQueue, int arrLength, int frameSize);
 
 // Constants
 const int frameSize = 3;
@@ -27,9 +25,15 @@ int main()
     int tempVar = 0;
     deque<int> pageRef;
 
+    // Select which algorithm to use
+    int selection = 0;
+    cout << "1. FIFO()\n" << "2. OPT()\n" << "3. LRU()\n" << "4. LFU()\n\n";
+    cout << "Select algorithm: ";
+    cin  >> selection;
+
     // First, let's get integers for the page references
     cout << endl;
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < 10; i++) {
         cout << "Page " << i + 1 << ": ";
         cin  >> tempVar;
         pageRef.push_back(tempVar);
@@ -44,7 +48,20 @@ int main()
     // FIFO(pageRef, pageRef.size());
     // OPT(pageRef, pageRef.size());
     // LRU(pageRef, pageRef.size(), frameSize);
-    LFU(pageRef, pageRef.size(), frameSize);
+    // LFU(pageRef, pageRef.size(), frameSize);
+
+    switch(selection) {
+        case 1: FIFO(pageRef, pageRef.size());
+                break;
+        case 2: OPT(pageRef, pageRef.size());
+                break;
+        case 3: LRU(pageRef, pageRef.size(), frameSize);
+                break;
+        case 4: LFU(pageRef, pageRef.size(), frameSize);
+                break;
+        default: cout << "Invalid selection made." << endl;
+    }
+
     return 0;
 }
 
@@ -58,15 +75,6 @@ void tablePrint(int tableArr[10][3])
     }
     cout << endl;
 }
-
-// This function checks to see the frequency of references in the page frame
-// array and determines which index the next reference will be inserted into
-// void frequencyCheck(vector<int> uniqueValues, vector<int> pageBuffer)
-// {
-//     for (int i = 0; i < pageBuffer.size(); i++) {
-//
-//     }
-// }
 
 void FIFO(deque<int> pageQueue, int arrLength)
 {
@@ -140,6 +148,11 @@ void FIFO(deque<int> pageQueue, int arrLength)
             }
         }
     }
+    double percent = 0.0;
+    percent = (double) pageHit / (double)(pageHit + pageFault);
+    cout << "Page Hits: " << pageHit << endl;
+    cout << "Page Faults: " << pageFault << endl;
+    cout << "Hit Percentage: " << percent << endl;
     tablePrint(table);
 }
 
@@ -168,6 +181,7 @@ void OPT(deque<int> pageQueue, int arrLength)
         for (int j = 0; j < 3; j++) {
             table[i][j] = frameArray[j];
         }
+        pageFault++;
     }
 
     int loopCount = 0;
@@ -209,9 +223,11 @@ void OPT(deque<int> pageQueue, int arrLength)
         if (frameCounter == 0) {
             frameArray[markIndex] = pageQueue.front();
             pageQueue.pop_front();
+            pageFault++;
         }
         else if (frameCounter > 0) {
             pageQueue.pop_front();
+            pageHit++;
         }
         popCount++;
 
@@ -221,6 +237,11 @@ void OPT(deque<int> pageQueue, int arrLength)
         }
     }
 
+    double percent = 0.0;
+    percent = (double) pageHit / (double)(pageHit + pageFault);
+    cout << "Page Hits: " << pageHit << endl;
+    cout << "Page Faults: " << pageFault << endl;
+    cout << "Hit Percentage: " << percent << endl;
     tablePrint(table);
 }
 
@@ -255,6 +276,7 @@ void LRU(deque<int> pageQueue, int arrLength, int frameSize)
         for (int j = 0; j < 3; j++) {
             table[i][j] = frameArray[j];
         }
+        pageFault++;
     }
 
     while (!pageQueue.empty())
@@ -280,9 +302,11 @@ void LRU(deque<int> pageQueue, int arrLength, int frameSize)
         if (frameCounter == 0) {
             frameArray[repIndex] = pageQueue.front();
             pageQueue.pop_front();
+            pageFault++;
         }
         else if (frameCounter > 0) {
             pageQueue.pop_front();
+            pageHit++;
         }
         popCount++;
 
@@ -291,13 +315,19 @@ void LRU(deque<int> pageQueue, int arrLength, int frameSize)
             table[popCount-1][i] = frameArray[i];
         }
     }
-
+    double percent = 0.0;
+    percent = (double) pageHit / (double)(pageHit + pageFault);
+    cout << "Page Hits: " << pageHit << endl;
+    cout << "Page Faults: " << pageFault << endl;
+    cout << "Hit Percentage: " << percent << endl;
     tablePrint(table);
 }
 
 void LFU(deque<int> pageQueue, int arrLength, int frameSize)
 {
     // Initialize table, set values to 0
+    int pageHit = 0;
+    int pageFault = 0;
     int table[10][3];
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 3; j++) {
@@ -356,6 +386,8 @@ void LFU(deque<int> pageQueue, int arrLength, int frameSize)
         for (int j = 0; j < 3; j++) {
             table[i][j] = frameArray[j];
         }
+
+        pageFault++;
     }
 
     //======================================================================
@@ -399,7 +431,7 @@ void LFU(deque<int> pageQueue, int arrLength, int frameSize)
                     hitIndex = i;
                 }
             }
-
+            pageHit++;
             pageFreqTotal[hitIndex]++;
         }
         // Page FAULT
@@ -423,6 +455,7 @@ void LFU(deque<int> pageQueue, int arrLength, int frameSize)
                 }
             }
             frameArray[maxVal] = pageQueue.front();
+            pageFault++;
         }
         pageQueue.pop_front();
         popCount++;
@@ -440,4 +473,10 @@ void LFU(deque<int> pageQueue, int arrLength, int frameSize)
     }
 
     tablePrint(table);
+
+    double percent = 0.0;
+    percent = (double) pageHit / (double)(pageHit + pageFault);
+    cout << "Page Hits: " << pageHit << endl;
+    cout << "Page Faults: " << pageFault << endl;
+    cout << "Hit Percentage: " << percent << endl;
 }
